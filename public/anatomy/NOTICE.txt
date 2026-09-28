@@ -1,0 +1,16 @@
+The 3D body in this app is not something I drew from boxes and spheres.
+
+It comes from Z-Anatomy, an atlas made by Gauthier Kervyn and packaged for a desktop viewer by Lluís Vinent Juanico.
+Z-Anatomy is licensed Creative Commons Attribution-ShareAlike 4.0 International.
+That means you may use and share it if you credit the authors and share changes to the models under the same license.
+
+Z-Anatomy is derived from BodyParts3D, © The Database Center for Life Science, Research Organization of Information and Systems, Japan.
+The polygon files in BodyParts3D release 4.0 carry this notice: Creative Commons Attribution-ShareAlike 2.1 Japan.
+The current BodyParts3D database readme states Creative Commons Attribution 4.0 International.
+Credit both projects if you share these models.
+
+Suggested credit line:
+"Z-Anatomy (Gauthier Kervyn; Lluís Vinent Juanico), CC BY-SA 4.0, derived from BodyParts3D, © The Database Center for Life Science."
+
+Foundational Model of Anatomy (FMA) numbers are matched from the BodyParts3D name table when the mesh name agrees with that table.
+FMA is maintained by the University of Washington.
