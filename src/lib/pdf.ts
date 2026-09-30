@@ -23,7 +23,7 @@ function sideLabel(side: string): string {
   return "midline";
 }
 
-export function buildPainPdf(entries: PainEntry[], images: PdfImages, generatedAt: Date): Uint8Array {
+export function buildPainPdf(entries: PainEntry[], images: PdfImages, generatedAt: Date, bodyLine?: string): Uint8Array {
   const doc = new jsPDF({ unit: "pt", format: "letter" });
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 36;
@@ -58,7 +58,13 @@ export function buildPainPdf(entries: PainEntry[], images: PdfImages, generatedA
   doc.text(`Written ${formatCentralTime(generatedAt)}. Times below are US Central Time (CT).`, margin, y);
   y += 8;
   doc.text("This sheet records what the person marked. It does not offer a diagnosis or a treatment.", margin, y);
-  y += 16;
+  y += 14;
+  if (bodyLine) {
+    doc.text(bodyLine, margin, y);
+    y += 16;
+  } else {
+    y += 2;
+  }
 
   const shots: { label: string; data?: string }[] = [
     { label: "Front", data: images.front },

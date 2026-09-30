@@ -91,6 +91,8 @@ export type PainEntry = {
   id: string;
   createdAt: string;
   updatedAt: string;
+  /** Which outer body this mark was placed on. Older notes were marked on the man's body. */
+  body?: "woman" | "man";
   position: [number, number, number];
   structure: StoredStructure;
   beneath: StoredStructure[];

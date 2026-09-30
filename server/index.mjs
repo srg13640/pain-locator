@@ -111,6 +111,7 @@ function entryFromBody(body, existing) {
     onset: typeof body.onset === "string" ? body.onset : "",
     duration: typeof body.duration === "string" ? body.duration : "",
     notes: typeof body.notes === "string" ? body.notes : "",
+    ...(body.body === "woman" || body.body === "man" ? { body: body.body } : existing?.body ? { body: existing.body } : {}),
   };
 }
 

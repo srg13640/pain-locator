@@ -14,3 +14,13 @@ Suggested credit line:
 
 Foundational Model of Anatomy (FMA) numbers are matched from the BodyParts3D name table when the mesh name agrees with that table.
 FMA is maintained by the University of Washington.
+
+The woman's outer surface is a separate model: VH_F_Skin from the HuBMAP Common Coordinate Framework 3D reference library, version 1.2.
+It was derived from the Visible Human Female, National Library of Medicine, for the Human Reference Atlas.
+Kristen Browne and Heidi Schlehlein are among the people who built that reference skin.
+The library is Creative Commons Attribution 4.0 International.
+https://humanatlas.io/3d-reference-library
+https://creativecommons.org/licenses/by/4.0/
+
+This app lines that woman's skin up with the atlas (height, feet, and the front of the breastbone, with the patient's left on +X) and divides it into the atlas skin regions by place.
+The bones, muscles, and organs behind it are still the Z-Anatomy atlas. They are not a second, female reconstruction of each organ.
