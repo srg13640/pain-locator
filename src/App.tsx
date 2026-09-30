@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AboutDialog } from "./components/AboutDialog";
+import { BodyIntake } from "./components/BodyIntake";
 import { HistoryPanel } from "./components/HistoryPanel";
 import { LayerPanel } from "./components/LayerPanel";
 import { PinForm, type PinDraft } from "./components/PinForm";
@@ -7,6 +8,7 @@ import { SafetyGate } from "./components/SafetyGate";
 import { Viewport, type PinMarker, type TapResult, type ViewportHandle } from "./components/Viewport";
 import { Button } from "./components/ui/button";
 import { ScrollArea } from "./components/ui/scroll-area";
+import { bodyPictureLine, readBodyChoice, skinFileFor, writeBodyChoice, type BodyChoice } from "./lib/bodyChoice";
 import { deleteLocalEntry, PHONE_NOTES_LABEL, readLocalEntries, saveLocalEntry } from "./lib/localNotes";
 import { publicUrl } from "./lib/publicUrl";
 import { canPlacePin, initialSafety, type SafetyState } from "./lib/safety";
@@ -15,6 +17,14 @@ import { formatCentralTime } from "./lib/time";
 import { DEFAULT_LAYERS, toStored, type Catalog, type LayerSetting, type PainEntry } from "./lib/types";
 
 const SAFETY_KEY = "pain-locator-safety-v1";
+
+function readInitialBody(): BodyChoice | null {
+  try {
+    return readBodyChoice(localStorage);
+  } catch {
+    return null;
+  }
+}
 
 function loadSafety(): SafetyState {
   try {
@@ -76,6 +86,8 @@ export default function App() {
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [body, setBody] = useState<BodyChoice | null>(readInitialBody);
+  const [intakeOpen, setIntakeOpen] = useState(() => readInitialBody() === null);
   const [dataDir, setDataDir] = useState<string | null>(null);
   const [storage, setStorage] = useState<"pending" | "computer" | "phone">("pending");
   const [layersOpen, setLayersOpen] = useState(false);
@@ -111,8 +123,13 @@ export default function App() {
     })();
   }, []);
 
+  const shownEntries = useMemo(
+    () => (body ? entries.filter((entry) => (entry.body ?? "man") === body) : []),
+    [entries, body],
+  );
+
   const pins: PinMarker[] = useMemo(() => {
-    const ordered = [...entries].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    const ordered = [...shownEntries].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
     const markers: PinMarker[] = ordered.map((entry, index) => ({
       id: entry.id,
       position: entry.position,
@@ -133,7 +150,7 @@ export default function App() {
       if (marker) marker.radiation = draft.radiation.position;
     }
     return markers;
-  }, [entries, draft]);
+  }, [shownEntries, draft]);
 
   const openDraft = (result: TapResult) => {
     setDraft(draftFromTap(result));
@@ -176,7 +193,7 @@ export default function App() {
     try {
       const existing = draft.id ? entries.find((entry) => entry.id === draft.id) : undefined;
       if (storage === "phone") {
-        const saved = saveLocalEntry(localStorage, draft, existing);
+        const saved = saveLocalEntry(localStorage, { ...draft, body: existing?.body ?? body ?? undefined }, existing);
         setEntries((current) => [...current.filter((entry) => entry.id !== saved.id), saved]);
         setDraft(draftFromEntry(saved));
         setStatus(`Saved on this device at ${formatCentralTime(new Date(saved.createdAt))}.`);
@@ -189,6 +206,7 @@ export default function App() {
           ...draft,
           id: draft.id ?? crypto.randomUUID(),
           createdAt: existing?.createdAt,
+          body: existing?.body ?? body ?? undefined,
         }),
       });
       if (!response.ok) throw new Error("The note could not be saved.");
@@ -237,13 +255,14 @@ export default function App() {
     setStatus("Building the PDF…");
     try {
       const bytes = buildPainPdf(
-        [...entries].sort((a, b) => a.createdAt.localeCompare(b.createdAt)),
+        [...shownEntries].sort((a, b) => a.createdAt.localeCompare(b.createdAt)),
         {
           front: viewportRef.current?.capture("front"),
           back: viewportRef.current?.capture("back"),
           side: viewportRef.current?.capture("side"),
         },
         new Date(),
+        body ? bodyPictureLine(body) : undefined,
       );
       const filename = `pain-record-${formatCentralTime(new Date()).replace(/[: ]/g, "-")}.pdf`;
       const blob = new Blob([bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer], {
@@ -280,6 +299,11 @@ export default function App() {
           <p className="mt-1 text-xs text-stone-200">Mark where it hurts. Hand the summary to your doctor.</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {body ? (
+            <Button variant="secondary" size="sm" onClick={() => setIntakeOpen(true)}>
+              {body === "woman" ? "Woman's body" : "Man's body"}
+            </Button>
+          ) : null}
           <Button variant="secondary" size="sm" onClick={() => setAboutOpen(true)}>
             About
           </Button>
@@ -336,6 +360,7 @@ export default function App() {
             }}
             onReady={() => setModelReady(true)}
             onError={(message) => setLoadError(message)}
+            skinFile={body ? skinFileFor(body) : null}
           />
           <div className="pointer-events-none absolute left-3 top-3 max-w-[240px] rounded-md bg-stone-950/80 px-3 py-2 text-stone-50">
             <p className="text-sm font-semibold">{viewTitle}</p>
@@ -385,7 +410,7 @@ export default function App() {
                 </p>
               ) : (
                 <HistoryPanel
-                  entries={entries}
+                  entries={shownEntries}
                   selectedId={draft?.id ?? null}
                   onSelect={(id) => {
                     const entry = entries.find((item) => item.id === id);
@@ -404,13 +429,34 @@ export default function App() {
         Documentation tool only. Not a medical device. Does not diagnose.
       </footer>
 
-      <SafetyGate
-        state={safety}
-        open={safetyOpen}
-        onChange={onSafetyChange}
-        onLookFirst={() => setSafetyOpen(false)}
+      {!intakeOpen && (
+        <SafetyGate
+          state={safety}
+          open={safetyOpen}
+          onChange={onSafetyChange}
+          onLookFirst={() => setSafetyOpen(false)}
+        />
+      )}
+      <BodyIntake
+        open={intakeOpen}
+        changing={body !== null}
+        onChoose={(choice) => {
+          try {
+            writeBodyChoice(localStorage, choice);
+          } catch {
+            // The choice still applies for this visit if the phone refuses storage.
+          }
+          if (choice !== body) {
+            setModelReady(false);
+            setLoadError(null);
+            setDraft(null);
+            setPanel("history");
+          }
+          setBody(choice);
+          setIntakeOpen(false);
+        }}
       />
-      <AboutDialog open={aboutOpen} onOpenChange={setAboutOpen} catalog={catalog} dataDir={dataDir} onPhone={storage === "phone"} />
+      <AboutDialog open={aboutOpen} onOpenChange={setAboutOpen} catalog={catalog} dataDir={dataDir} onPhone={storage === "phone"} body={body} />
     </div>
   );
 }

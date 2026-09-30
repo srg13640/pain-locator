@@ -24,6 +24,8 @@ https://srg13640.github.io/pain-locator/
 
 That page stays up when the Mac is off. Anyone with the link can open it. Your wife can open it in Safari, tap the Share button, then tap **Add to Home Screen**.
 
+The first screen asks which body the picture should use. Choose a woman's body or a man's body. That choice stays on the phone, and the button in the header can change it later. A woman's picture uses a female outer body. A man's picture uses the original atlas body. Notes stay with the body they were marked on.
+
 On that page, the body pictures come from the website. The notes a person types stay in the browser on that phone or computer. They are not saved on GitHub, and they are not saved in your PainLocator folder. Clearing the site data for that page erases the notes on that device. The PDF downloads to that device.
 
 The Mac double-click is separate. It still keeps notes in the PainLocator folder on the computer. The shared page and the Mac keep separate notes.
@@ -38,7 +40,7 @@ To close the private page later, double-click **close-pain-locator.sh**. Closing
 
 ## How to use it
 
-1. Read the warning list. If any of those things are happening now, the screen tells you to call 911. If none of them are happening, continue.
+1. Choose a woman's body or a man's body. Then read the warning list. If any of those things are happening now, the screen tells you to call 911. If none of them are happening, continue.
 2. Drag on the body to turn it. Scroll or pinch to zoom in. The corner always says whether you are looking at the front, the back, or a side, and which side of the picture is the patient’s left.
 3. Tap the spot that hurts. The name is the name of the exact 3D part you touched. You also see a plain-English sentence, and the parts directly underneath, from the outside inward.
 4. Fill in how it feels, how strong it is from 0 to 10, whether it spreads (draw an arrow), what brings it on, when it started, how long it lasts, and any notes.
@@ -76,7 +78,9 @@ Copy the whole **PainLocator** folder to a USB drive or another disk. That copy 
 
 ## The body model
 
-The body is the Z-Anatomy atlas. Z-Anatomy was built from BodyParts3D, a set of 3D parts made from real CT scans, published by the Database Center for Life Science in Japan. I did not build the body out of spheres, boxes, or tubes.
+A man's body is the Z-Anatomy atlas. Z-Anatomy was built from BodyParts3D, a set of 3D parts made from real CT scans, published by the Database Center for Life Science in Japan. I did not build the body out of spheres, boxes, or tubes.
+
+A woman's outer body is the Visible Human female skin from the Human Reference Atlas (Creative Commons Attribution 4.0). It is lined up with the same atlas at the breastbone. The bones, muscles, and organs inside are still that atlas, not a separate female set of organs. The credit is in `public/anatomy/NOTICE.txt`.
 
 Each tappable part keeps the name it has in that atlas. When that name matches the BodyParts3D name table, the screen also shows the Foundational Model of Anatomy number (FMA). Some surface regions and a few muscles are in Z-Anatomy but are not in that name table, so those parts show the atlas name and the plain-English sentence without an FMA number.
 

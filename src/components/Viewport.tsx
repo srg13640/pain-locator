@@ -55,6 +55,7 @@ type Props = {
   onViewChange: (title: string, detail: string) => void;
   onReady: () => void;
   onError: (message: string) => void;
+  skinFile: string | null;
 };
 
 type SceneApi = {
@@ -174,7 +175,7 @@ function drawPins(group: Group, pins: PinMarker[]) {
 }
 
 export const Viewport = forwardRef<ViewportHandle, Props>(function Viewport(
-  { catalog, layers, pins, radiationArmed, onTap, onPinSelect, onRadiation, onViewChange, onReady, onError },
+  { catalog, layers, pins, radiationArmed, onTap, onPinSelect, onRadiation, onViewChange, onReady, onError, skinFile },
   ref,
 ) {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -219,7 +220,7 @@ export const Viewport = forwardRef<ViewportHandle, Props>(function Viewport(
 
   useEffect(() => {
     const host = hostRef.current;
-    if (!host || !catalog) return;
+    if (!host || !catalog || !skinFile) return;
 
     const renderer = new WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
@@ -326,7 +327,7 @@ export const Viewport = forwardRef<ViewportHandle, Props>(function Viewport(
 
     void (async () => {
       try {
-        for (const file of ["skin.glb", "skeleton.glb", "muscle.glb", "organ.glb"]) {
+        for (const file of [skinFile, "skeleton.glb", "muscle.glb", "organ.glb"]) {
           const gltf = await loader.loadAsync(publicUrl(`anatomy/${file}`));
           if (cancelled) return;
           for (const mesh of assignStructureNames(gltf.scene, ids)) {
@@ -372,7 +373,7 @@ export const Viewport = forwardRef<ViewportHandle, Props>(function Viewport(
       renderer.domElement.remove();
       api.current = null;
     };
-  }, [catalog]);
+  }, [catalog, skinFile]);
 
   useEffect(() => {
     if (!api.current) return;

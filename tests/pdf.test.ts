@@ -55,4 +55,10 @@ describe("PDF export", () => {
     expect(text).toContain("13:30 CT");
     expect(text).toContain("History log");
   });
+
+  it("names which body the pictures use", () => {
+    const bytes = buildPainPdf([entry], {}, new Date("2026-07-15T18:40:00Z"), "Pictures use a woman's body.");
+    const text = new TextDecoder("latin1").decode(bytes);
+    expect(text).toContain("Pictures use a woman's body.");
+  });
 });

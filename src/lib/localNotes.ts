@@ -21,6 +21,7 @@ type NoteDraft = {
   onset: string;
   duration: string;
   notes: string;
+  body?: PainEntry["body"];
 };
 
 function isEntry(value: unknown): value is PainEntry {
@@ -49,10 +50,12 @@ export function readLocalEntries(store: NoteStore): PainEntry[] {
 
 export function saveLocalEntry(store: NoteStore, draft: NoteDraft, existing: PainEntry | undefined, now = new Date()): PainEntry {
   const severity = Number(draft.severity);
+  const body = draft.body === "woman" || draft.body === "man" ? draft.body : existing?.body;
   const saved: PainEntry = {
     id: existing?.id || draft.id || crypto.randomUUID(),
     createdAt: existing?.createdAt || now.toISOString(),
     updatedAt: now.toISOString(),
+    ...(body ? { body } : {}),
     position: draft.position,
     structure: draft.structure,
     beneath: Array.isArray(draft.beneath) ? draft.beneath : [],
